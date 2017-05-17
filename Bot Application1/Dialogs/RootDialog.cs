@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using SchoolMeal;
+using System.Xml;
+using System.Collections;
 
 namespace Bot_Application1.Dialogs
 {
@@ -84,7 +86,7 @@ namespace Bot_Application1.Dialogs
             {
                 int dateCount = 1;
                 await context.PostAsync("오늘의 급식은.. \n");
-                Meal meal = new Meal(Regions.Gyeonggi, SchoolType.Middle, "J100005350");
+                Meal meal = new Meal(Regions.Seoul, SchoolType.High, "B100000662");
                 string date = DateTime.Now.ToString("dd");
                 var menu = meal.GetMealMenu();
 
@@ -99,6 +101,10 @@ namespace Bot_Application1.Dialogs
                 context.Wait(print);
                 
             }
+            else if(activity.Text.Equals("2"))
+            {
+                context.Wait(weather);
+            }
             else if (activity.Text.Equals("4"))
             {
                 context.Wait(showMenu);
@@ -112,5 +118,31 @@ namespace Bot_Application1.Dialogs
 
         }
 
+        private async Task weather(IDialogContext context, IAwaitable<object> result)
+        {
+            await context.PostAsync("마포구 아현동의 날씨입니다.");
+            string url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1144055500";
+            XmlDocument document = new XmlDocument();
+            document.Load(url);
+            XmlElement root = document.DocumentElement;
+            XmlNodeList days = root.SelectNodes("//data/day");
+            XmlNodeList hours = root.SelectNodes("//data/hour");
+            XmlNodeList temporatures = root.SelectNodes("//data/temp");
+            XmlNodeList weathers = root.SelectNodes("//data/wfKor");
+            XmlNodeList rains = root.SelectNodes("//data/reh");
+            string temp = "";
+            ArrayList arrayList = new ArrayList();
+            foreach (XmlNode node in days)
+            {
+                if (node.InnerText.Equals("0")) arrayList.Add("오늘 ");
+                else if (node.InnerText.Equals("1")) arrayList.Add("내일 ");
+                else if (node.InnerText.Equals("2")) arrayList.Add("모레 ");
+            }
+            for (int i = 0; i < days.Count; i++)
+            {
+                temp += arrayList[i] + hours.Item(i).InnerText + "시 " + weathers.Item(i).InnerText + " " + temporatures.Item(i).InnerText + "°C " + "강수확률 : " + rains.Item(i).InnerText + "%\n\n";
+            }
+            await context.PostAsync(temp);
+        }
     }
 }
