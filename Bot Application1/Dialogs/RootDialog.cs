@@ -101,15 +101,50 @@ namespace Bot_Application1.Dialogs
                 context.Wait(print);
                 
             }
+
+
             else if(activity.Text.Equals("2"))
             {
-                context.Wait(weather);
+                await context.PostAsync("마포구 아현동의 오늘 날씨입니다.");
+
+                //날씨 파싱
+                string url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1144055500";
+                XmlDocument document = new XmlDocument();
+                document.Load(url);
+                XmlElement root = document.DocumentElement;
+                XmlNodeList days = root.SelectNodes("//data/day");
+                XmlNodeList hours = root.SelectNodes("//data/hour");
+                XmlNodeList temporatures = root.SelectNodes("//data/temp");
+                XmlNodeList weathers = root.SelectNodes("//data/wfKor");
+                XmlNodeList rains = root.SelectNodes("//data/reh");
+                string temp = "";
+
+
+                for (int i = 0; i < days.Count; i++)
+                {
+                    if (days.Item(i).InnerText.Equals("0"))
+                    {
+                        temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
+                    }
+                }
+                await context.PostAsync(temp);
+                context.Wait(print);
             }
+
+
+            else if(activity.Text.Equals("3"))
+            {
+                await context.PostAsync($"{id} 님 입니다.");
+                context.Wait(print);
+            }
+
+
             else if (activity.Text.Equals("4"))
             {
                 context.Wait(showMenu);
             }
         }
+
         private async Task print(IDialogContext context, IAwaitable<object> result) {
             await context.PostAsync($"{id}님");//output
             await context.PostAsync($"실행하실 동작을 선택해 주세요.");
@@ -118,31 +153,5 @@ namespace Bot_Application1.Dialogs
 
         }
 
-        private async Task weather(IDialogContext context, IAwaitable<object> result)
-        {
-            await context.PostAsync("마포구 아현동의 날씨입니다.");
-            string url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1144055500";
-            XmlDocument document = new XmlDocument();
-            document.Load(url);
-            XmlElement root = document.DocumentElement;
-            XmlNodeList days = root.SelectNodes("//data/day");
-            XmlNodeList hours = root.SelectNodes("//data/hour");
-            XmlNodeList temporatures = root.SelectNodes("//data/temp");
-            XmlNodeList weathers = root.SelectNodes("//data/wfKor");
-            XmlNodeList rains = root.SelectNodes("//data/reh");
-            string temp = "";
-            ArrayList arrayList = new ArrayList();
-            foreach (XmlNode node in days)
-            {
-                if (node.InnerText.Equals("0")) arrayList.Add("오늘 ");
-                else if (node.InnerText.Equals("1")) arrayList.Add("내일 ");
-                else if (node.InnerText.Equals("2")) arrayList.Add("모레 ");
-            }
-            for (int i = 0; i < days.Count; i++)
-            {
-                temp += arrayList[i] + hours.Item(i).InnerText + "시 " + weathers.Item(i).InnerText + " " + temporatures.Item(i).InnerText + "°C " + "강수확률 : " + rains.Item(i).InnerText + "%\n\n";
-            }
-            await context.PostAsync(temp);
-        }
     }
 }
