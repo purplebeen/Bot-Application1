@@ -108,25 +108,7 @@ namespace Bot_Application1.Dialogs
                 await context.PostAsync("마포구 아현동의 오늘 날씨입니다.");
 
                 //날씨 파싱
-                string url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1144055500";
-                XmlDocument document = new XmlDocument();
-                document.Load(url);
-                XmlElement root = document.DocumentElement;
-                XmlNodeList days = root.SelectNodes("//data/day");
-                XmlNodeList hours = root.SelectNodes("//data/hour");
-                XmlNodeList temporatures = root.SelectNodes("//data/temp");
-                XmlNodeList weathers = root.SelectNodes("//data/wfKor");
-                XmlNodeList rains = root.SelectNodes("//data/reh");
-                string temp = "";
-
-
-                for (int i = 0; i < days.Count; i++)
-                {
-                    if (days.Item(i).InnerText.Equals("0"))
-                    {
-                        temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
-                    }
-                }
+                string temp = WeatherParse();
                 await context.PostAsync(temp);
                 context.Wait(print);
             }
@@ -153,5 +135,28 @@ namespace Bot_Application1.Dialogs
 
         }
 
+        private string WeatherParse()
+        {
+            string url = "http://www.kma.go.kr/wid/queryDFSRSS.jsp?zone=1144055500";
+            XmlDocument document = new XmlDocument();
+            document.Load(url);
+            XmlElement root = document.DocumentElement;
+            XmlNodeList days = root.SelectNodes("//data/day");
+            XmlNodeList hours = root.SelectNodes("//data/hour");
+            XmlNodeList temporatures = root.SelectNodes("//data/temp");
+            XmlNodeList weathers = root.SelectNodes("//data/wfKor");
+            XmlNodeList rains = root.SelectNodes("//data/reh");
+            string temp = "";
+
+
+            for (int i = 0; i < days.Count; i++)
+            {
+                if (days.Item(i).InnerText.Equals("0"))
+                {
+                    temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
+                }
+            }
+            return temp;
+        }
     }
 }
