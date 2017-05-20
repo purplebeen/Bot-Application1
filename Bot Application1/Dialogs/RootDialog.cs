@@ -148,12 +148,18 @@ namespace Bot_Application1.Dialogs
             XmlNodeList rains = root.SelectNodes("//data/reh");
             string temp = "";
 
-
             for (int i = 0; i < days.Count; i++)
-            {
+            { 
                 if (days.Item(i).InnerText.Equals("0"))
                 {
-                    temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
+                    if(!(days.Item(i).Equals(null)))
+                    {
+                        temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
+                    } else
+                    {
+                        temp = "아직 오늘의 날씨 정보가 업데이트 되지 않았습니다. 잠시후 다시 시도해주세요.";
+                    }
+
                 }
             }
             return temp;
