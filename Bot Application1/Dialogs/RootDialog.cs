@@ -109,6 +109,7 @@ namespace Bot_Application1.Dialogs
 
                 //날씨 파싱
                 string temp = WeatherParse();
+                if(temp.Equals("")) temp = "아직 오늘의 날씨 정보가 업데이트 되지 않았습니다. 잠시후 다시 시도해주세요.";
                 await context.PostAsync(temp);
                 context.Wait(print);
             }
@@ -152,14 +153,7 @@ namespace Bot_Application1.Dialogs
             { 
                 if (days.Item(i).InnerText.Equals("0"))
                 {
-                    if(!(days.Item(i).Equals(null)))
-                    {
-                        temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
-                    } else
-                    {
-                        temp = "아직 오늘의 날씨 정보가 업데이트 되지 않았습니다. 잠시후 다시 시도해주세요.";
-                    }
-
+                    temp += hours.Item(i).InnerText + "시 " + temporatures.Item(i).InnerText + "℃ " + weathers.Item(i).InnerText + " 강수확률 : " + rains.Item(i).InnerText + "\n\n";
                 }
             }
             return temp;
